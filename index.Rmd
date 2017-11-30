@@ -64,23 +64,20 @@ The description of their Niagara River sampling locations are shown in the table
 The comma separated value (csv) file that the above hyperlink returns can be downloaded straigt to R using the following code:
 ```{r}
 Qdata<-fread("http://www.lre.usace.army.mil/Portals/69/docs/GreatLakesInfo/docs/DischargeMeasurement/DischargeData/NiagaraRiverDischargeData.csv")
-#Not working:Qdata=select(Qdata,('Cross.Section.Name'='Cross-Section Name'),('Discharge'='Discharge/tcfs'), 'Year', 'Month','Day',('Time'='Start Time'))
+Qdata=select(Qdata,'Cross.Section.Name'='Cross-Section Name','Discharge'='Discharge/tcfs', 'Year', 'Month','Day','Time'='Start Time')
+Qdata[Qdata$Year==1931&Qdata$Month==9&Qdata$Day==31,"Day"]=30
+Qdata$Date=as.Date( with(Qdata,paste(Year, Month , Day , sep = "-" ),"12-31-9999", format = "%Y-%m-%d" ))
 head(Qdata)
-#Not working: Qdata$Date[is.na(Qdata$Date)]=as.Date( with(Qdata,paste(Year, Month , Day , sep = "-" ),"12-31-9999", format = "%Y-%m-%d" ))
 
 ```
 Let's work with the data now. I am going to compile the separate columns for the date: Year, Month, and Day; into a single Date column:
 ```{r}
-#This stopped working:
-#Qdata$Date[is.na(Qdata$Date)]=as.Date( with(Qdata,paste(Year, Month , Day , sep = "-" ),"12-31-9999", format = "%Y-%m-%d" ))
+#This stopped working:Qdata$Date[!is.na(Qdata$Date)]=as.Date( with(Qdata,paste(Year, Month , Day , sep = "-" ),"12-31-9999", format = "%Y-%m-%d" ))
 head(Qdata)
 ```
 We'll find the annual mean discharge and standard deviation for the Niagara River:
 ```{r}
-meanQdata=Qdata%>%
-  group_by(Year)%>%
-  summarise(meanDischarge = mean(Discharge,na.rm=T),
-    sdDischarge = sd(Discharge,na.rm=T))
+
 ```
 I want to treat the data with the R package hydroTSM, which helps analyze hydrological data with time series. To do this, I need to get my data into a format that is compatible with the xts package.
 
@@ -88,38 +85,49 @@ BUT, this code isn't working yet, so I can't include it here.
 ```{r}
 #xts1<-xts(x=1:10,order.by = Sys.Date()-1:10)
 
-#setcolorder(Qdata,c("Date", "Year", "Month", "Day", "Cross.Section.Name", "Discharge"))
+setcolorder(Qdata,c("Date", "Year", "Month", "Day", "Time","Cross.Section.Name", "Discharge"))
 
-#QDT<-as.data.table(Qdata)%>%
-# select(c("Date"="index","Discharge"))
-#head(QDT)
-#Qxts<-as.xts.data.table(QDT)
-#head(Qxts)
-#xts(QDT[, -1], order.by=as.POSIXct.Date(QDT$index))
+head(Qdata)
+QDT<-as.data.table(Qdata)%>%
+select(c("Date","Discharge"))
+head(QDT)
+Qxts<-as.xts.data.table(QDT)
+head(Qxts)
+xts(QDT[, -1], order.by=as.POSIXct.Date(QDT$Date))
 
 ```
 ```{r}
-#MQDT<-data.table(meanQdata)
-#as.xts.data.table(MQDT)
-#xts(MQDT[, -1], order.by=as.Date(meanQdata$Date))
-#head(MQDT)
+Qdata$MeanDate=as.yearmon(Qdata$Date)
+
+meanQdata=Qdata%>%
+  group_by(MeanDate)%>%
+  summarise(meanDischarge = mean(Discharge,na.rm=T),
+    sdDischarge = sd(Discharge,na.rm=T))
+
+
+setcolorder(meanQdata,c("MeanDate","meanDischarge", "sdDischarge"))
+
+head(meanQdata)
+MQDT<-data.table(meanQdata)
+xts(MQDT[, -1], order.by=as.Date(meanQdata$MeanDate))
+head(MQDT)
 ```
 # Results
 Plotting the discharge over time yields:
 ```{r}
-  x=meanQdata$Year
+  x=meanQdata$MeanDate
   y=meanQdata$meanDischarge
   m=plot(x,y,
        type="p",
        ylab="Discharge (cfs)",
        xlab="Year",
-       main="Annual Mean Discharge of the Niagara River",
+       main="Monthly Mean Discharge of the Niagara River",
        col="blue"
        
   )
   
 ```
-The discharge measurements have been averaged for each year and plotted over time. 
+The discharge measurements have been averaged for each month and plotted over time. 
 
 
 ```{r}
