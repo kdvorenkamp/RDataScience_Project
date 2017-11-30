@@ -9,10 +9,10 @@
 <meta name="generator" content="pandoc" />
 
 
-<meta name="author" content="Your name here" />
+<meta name="author" content="Kendra Vorenkamp" />
 
 
-<title>I have the best titles</title>
+<title>The Niagara River Watershed</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -296,91 +296,249 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">I have the best titles</h1>
-<h3 class="subtitle"><em>Subtitle here if desired</em></h3>
-<h4 class="author"><em>Your name here</em></h4>
+<h1 class="title toc-ignore">The Niagara River Watershed</h1>
+<h3 class="subtitle"><em>The relationship between precipitation and river discharge</em></h3>
+<h4 class="author"><em>Kendra Vorenkamp</em></h4>
 
 </div>
 
 
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>My really awesome and complete introduction will go here.</p>
-<blockquote>
-<p>I know words. I have the best words. ~ Donald Trump</p>
-</blockquote>
+<p>The Niagara River watershed is not only the land draining to the river, but also includes the drainage area of the other Great Lakes “upstream”: Lake Erie, Lake Huron, and Lake Michigan/Lake Superior. In order to investigate a relationship between precipitation within the watershed and discharge through the Niagara River, several problems arise in quantifying the data. First, the Lake Erie watershed data is international, shared with Canada. As of now, there is not a common dataset for the Great Lakes, making collaboration for watershed management difficult. Second, there may be a significant lag in precipitation events and discharge reaction with a watershed system this large. Third, snow melt and ice cover of the lakes will affect flow throughout the lakes, and the ability to measure discharge.</p>
+<p>The questions I will be pursuing through this project are</p>
+<ol style="list-style-type: decimal">
+<li><p>Has the flow rate of the Niagara River changed over time?</p></li>
+<li><p>Is there a relationship between precipitation and discharge in the Niagara River?</p></li>
+<li><p>If so, what level of detail is needed to ascertain this relationship?</p></li>
+</ol>
+<p>My hypotheses to these questions are that yes, the flow rate has changed with time as land and water use has changed the watershed, there is a relationship between discharge and precipitation, and that it will be sufficient to incorporate flow from the St. Clair River (from Lake Huron), the subwatersheds surrounding Lake Erie, and the Niagara watershed to see a relationship to the discharge measured at the downstream end of the river.</p>
 </div>
 <div id="materials-and-methods" class="section level1">
 <h1>Materials and methods</h1>
-<p>Narrative and most code will go here. Describe what you are doing and show how to do it (with code).</p>
-<p>You can do bullets like this:</p>
-<ul>
-<li>The first most important thing</li>
-<li>The second most important thing</li>
-<li>The third most important thing</li>
-</ul>
-<p>You can do numbers like this:</p>
-<ol style="list-style-type: decimal">
-<li>The first most important thing</li>
-<li>The second most important thing</li>
-<li>The third most important thing</li>
-</ol>
-<p>See <a href="http://rmarkdown.rstudio.com/" class="uri">http://rmarkdown.rstudio.com/</a> for all the amazing things you can do.</p>
-<p>Here’s my first code chunk.</p>
-<pre class="r"><code>1+2</code></pre>
-<pre><code>## [1] 3</code></pre>
-<p>Load any required packages in a code chunk (you may need to install some packages):</p>
-<pre class="r"><code>library(dplyr)
+<p>Load any required packages (Some packages may need to be installed):</p>
+<pre class="r"><code>library(magrittr)
+library(sp)
+library(xts)
+library(zoo)
+library(hydroTSM)
 library(ggplot2)
-library(maps)
-library(spocc)
+library(dplyr)
+library(tidyr)
+library(readxl)
+library(dataRetrieval)
+library(data.table)
 knitr::opts_chunk$set(cache=TRUE)  # cache the results for quick compiling</code></pre>
-<p>We are going to use the <code>occ()</code> function to download <em>occurrence</em> records for the American robin (<em>Turdus migratorius</em>) from the <a href="gbif.org">Global Biodiversity Information Facility</a>.</p>
-<p><img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/Turdus-migratorius-002.jpg" alt="alt text" width="200"> <small><small><small>Licensed under CC BY-SA 3.0 via <a href="https://commons.wikimedia.org/wiki/File:Turdus-migratorius-002.jpg#/media/File:Turdus-migratorius-002.jpg">Wikimedia Commons</a></small></small></small></p>
-<pre class="r"><code>## define which species to query
-sp=&#39;Turdus migratorius&#39;
-
-## run the query and convert to data.frame()
-d = occ(query=sp, from=&#39;ebird&#39;,limit = 100) %&gt;% occ2df()</code></pre>
-<p>This can take a few seconds.</p>
-<pre class="r"><code># Load coastline
-map=map_data(&quot;world&quot;)
-
-ggplot(d,aes(x=longitude,y=latitude))+
-  geom_polygon(aes(x=long,y=lat,group=group),data=map)+
-  geom_point(col=&quot;red&quot;)+
-  coord_equal()</code></pre>
-<div class="figure">
-<img src="index_files/figure-html/unnamed-chunk-4-1.png" alt="Map illustrating the known occurrence locations" width="576" />
-<p class="caption">
-Map illustrating the known occurrence locations
-</p>
+<p>My discharge data for the Niagara River comes from <a href="http://www.lre.usace.army.mil/Portals/69/docs/GreatLakesInfo/docs/DischargeMeasurement/DischargeData/NiagaraRiverDischargeData.csv">the Army Corps of Engineers website</a> The description of their Niagara River sampling locations are shown in the table below:</p>
+<table>
+<colgroup>
+<col width="16%" />
+<col width="7%" />
+<col width="55%" />
+<col width="20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Location</th>
+<th align="left">Established</th>
+<th align="left">Description</th>
+<th align="left">Measurements</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Bridge</td>
+<td align="left">1897</td>
+<td align="left">Along the downstream edge of the International Railroad Bridge, which spans the Niagara River from Buffalo, New York to Fort Erie, Ontario</td>
+<td align="left">Made directly from the bridge</td>
+</tr>
+<tr class="even">
+<td align="left">Open</td>
+<td align="left">1899</td>
+<td align="left">About 1,800 feet downstream of the International Railroad Bridge, just below Unity Island</td>
+<td align="left">Not given</td>
+</tr>
+<tr class="odd">
+<td align="left">Bridgeburg</td>
+<td align="left">1921</td>
+<td align="left">along the upstream edge of the International Railroad Bridge, which spans the Niagara River from Buffalo, New York to Fort Erie, Ontario</td>
+<td align="left">Made directly from the bridge</td>
+</tr>
+<tr class="even">
+<td align="left">BlackRock</td>
+<td align="left">1931</td>
+<td align="left">It was nearly identical to the Open Section. It was located about 1,800 feet north of the International Railroad Bridge, just below Unity Island.</td>
+<td align="left">Not given</td>
+</tr>
+<tr class="odd">
+<td align="left">Wickwire</td>
+<td align="left">1931</td>
+<td align="left">It was nearly identical to the Split Section, although little information is available from any previous measurements. It was it was located about 2-3/4 miles north of Buffalo, New York and spanned the river between the U. S. mainland and Grand Island.</td>
+<td align="left">Not given</td>
+</tr>
+<tr class="even">
+<td align="left">Oakfield</td>
+<td align="left">1931</td>
+<td align="left">It was nearly identical to the Split Section also, although little information is available from any previous measurements. This section traversed the river from Grand Island west to the Canadian mainland.</td>
+<td align="left">Not given</td>
+</tr>
+<tr class="odd">
+<td align="left">Austin Street</td>
+<td align="left">1952</td>
+<td align="left">On the upper Niagara River, it extended approximately 1,840 feet from the Canadian shore at Fort Erie, Ontario to Buffalo, New York, on the U. S. mainland.</td>
+<td align="left">Not given</td>
+</tr>
+<tr class="even">
+<td align="left">Stella Niagara</td>
+<td align="left">1957</td>
+<td align="left">In the lower Niagara River, about 1-1/2 miles below Lewiston, New York and extended from the Canadian to the U. S. mainland.</td>
+<td align="left">Not given</td>
+</tr>
+<tr class="odd">
+<td align="left">Maid-of -the -Mist</td>
+<td align="left">1967</td>
+<td align="left">It was located in the Maid-of the –Mist Pool, approximately 1,500 feet downstream of the Rainbow Bridge.</td>
+<td align="left">Not given</td>
+</tr>
+<tr class="even">
+<td align="left">Niagara</td>
+<td align="left">1868</td>
+<td align="left">In the lower Niagara River near Youngstown, New York, about 3 miles above the mouth of the river.</td>
+<td align="left">Not given</td>
+</tr>
+<tr class="odd">
+<td align="left">Chippewa Channel</td>
+<td align="left">1967</td>
+<td align="left">In the Chippewa Channel of the Niagara River about ½ mile below Bayer’s Creek. It extended between the Canadian mainland and Grand Island.</td>
+<td align="left">Not given</td>
+</tr>
+<tr class="even">
+<td align="left">Tonawanda Channel</td>
+<td align="left">1967</td>
+<td align="left">In the Tonawanda Channel of the Niagara River about 1/3 mile northeast of Two Mile Creek at Tonawanda, New York. It extended from the U. S. mainland to Grand Island.</td>
+<td align="left">Not given</td>
+</tr>
+<tr class="odd">
+<td align="left">International Railroad Bridge</td>
+<td align="left">1970</td>
+<td align="left">About 408 feet above the International Railroad Bridge on the upper Niagara River.</td>
+<td align="left">Not given</td>
+</tr>
+<tr class="even">
+<td align="left">American Falls</td>
+<td align="left">1971</td>
+<td align="left">consisted of two segments. The first was the Bridal Veil Channel segment, between Goat Island and Green Island. It was metered from the upstream side of the Bridal Veil portion of the Goat Island Bridge. The second was the American Falls Channel segment between Green Island and the U. S. mainland.</td>
+<td align="left">Metered from the downstream side of the American Falls portion of the Bridge.</td>
+</tr>
+<tr class="odd">
+<td align="left">Moses</td>
+<td align="left">1971</td>
+<td align="left">Located about 500 feet upstream of the Robert Moses Powerhouse tail race.</td>
+<td align="left">Not given</td>
+</tr>
+<tr class="even">
+<td align="left">Cableway</td>
+<td align="left">1973</td>
+<td align="left">A cableway was installed spanning the Niagara Gorge, approximately at the location of the Moses Section. It is about 500 feet upstream of the Robert Moses tail race on the lower Niagara River.</td>
+<td align="left">Not given</td>
+</tr>
+</tbody>
+</table>
 </div>
+<div id="coding-section" class="section level1">
+<h1>Coding Section</h1>
+<p>The comma separated value (csv) file that the above hyperlink returns can be downloaded straigt to R using the following code:</p>
+<pre class="r"><code>Qdata&lt;-fread(&quot;http://www.lre.usace.army.mil/Portals/69/docs/GreatLakesInfo/docs/DischargeMeasurement/DischargeData/NiagaraRiverDischargeData.csv&quot;)
+#Not working:Qdata=select(Qdata,(&#39;Cross.Section.Name&#39;=&#39;Cross-Section Name&#39;),(&#39;Discharge&#39;=&#39;Discharge/tcfs&#39;), &#39;Year&#39;, &#39;Month&#39;,&#39;Day&#39;,(&#39;Time&#39;=&#39;Start Time&#39;))
+head(Qdata)</code></pre>
+<pre><code>##            River Cross-Section Name Year Month Day Instance Start Time
+## 1: Niagara River     American Falls 1971     6   2        1       8:00
+## 2: Niagara River     American Falls 1971     6   3        1       7:30
+## 3: Niagara River     American Falls 1971     6   3        2      10:05
+## 4: Niagara River     American Falls 1971     6   3        3      13:15
+## 5: Niagara River     American Falls 1971     6   3        4      14:55
+## 6: Niagara River     American Falls 1971     6   3        5      18:15
+##    End Time Discharge/tcfs                                Technology
+## 1:    10:15           12.6 Conventional - off American Rapids bridge
+## 2:     9:35           13.4 Conventional - off American Rapids bridge
+## 3:    12:00           13.7 Conventional - off American Rapids bridge
+## 4:    14:45           13.4 Conventional - off American Rapids bridge
+## 5:    16:05           12.7 Conventional - off American Rapids bridge
+## 6:    19:20           10.3 Conventional - off American Rapids bridge</code></pre>
+<pre class="r"><code>#Not working: Qdata$Date[is.na(Qdata$Date)]=as.Date( with(Qdata,paste(Year, Month , Day , sep = &quot;-&quot; ),&quot;12-31-9999&quot;, format = &quot;%Y-%m-%d&quot; ))</code></pre>
+<p>Let’s work with the data now. I am going to compile the separate columns for the date: Year, Month, and Day; into a single Date column:</p>
+<pre class="r"><code>#This stopped working:
+#Qdata$Date[is.na(Qdata$Date)]=as.Date( with(Qdata,paste(Year, Month , Day , sep = &quot;-&quot; ),&quot;12-31-9999&quot;, format = &quot;%Y-%m-%d&quot; ))
+head(Qdata)</code></pre>
+<pre><code>##            River Cross-Section Name Year Month Day Instance Start Time
+## 1: Niagara River     American Falls 1971     6   2        1       8:00
+## 2: Niagara River     American Falls 1971     6   3        1       7:30
+## 3: Niagara River     American Falls 1971     6   3        2      10:05
+## 4: Niagara River     American Falls 1971     6   3        3      13:15
+## 5: Niagara River     American Falls 1971     6   3        4      14:55
+## 6: Niagara River     American Falls 1971     6   3        5      18:15
+##    End Time Discharge/tcfs                                Technology
+## 1:    10:15           12.6 Conventional - off American Rapids bridge
+## 2:     9:35           13.4 Conventional - off American Rapids bridge
+## 3:    12:00           13.7 Conventional - off American Rapids bridge
+## 4:    14:45           13.4 Conventional - off American Rapids bridge
+## 5:    16:05           12.7 Conventional - off American Rapids bridge
+## 6:    19:20           10.3 Conventional - off American Rapids bridge</code></pre>
+<p>We’ll find the annual mean discharge and standard deviation for the Niagara River:</p>
+<pre class="r"><code>meanQdata=Qdata%&gt;%
+  group_by(Year)%&gt;%
+  summarise(meanDischarge = mean(Discharge,na.rm=T),
+    sdDischarge = sd(Discharge,na.rm=T))</code></pre>
+<p>I want to treat the data with the R package hydroTSM, which helps analyze hydrological data with time series. To do this, I need to get my data into a format that is compatible with the xts package.</p>
+<p>BUT, this code isn’t working yet, so I can’t include it here.</p>
+<pre class="r"><code>#xts1&lt;-xts(x=1:10,order.by = Sys.Date()-1:10)
+
+#setcolorder(Qdata,c(&quot;Date&quot;, &quot;Year&quot;, &quot;Month&quot;, &quot;Day&quot;, &quot;Cross.Section.Name&quot;, &quot;Discharge&quot;))
+
+#QDT&lt;-as.data.table(Qdata)%&gt;%
+# select(c(&quot;Date&quot;=&quot;index&quot;,&quot;Discharge&quot;))
+#head(QDT)
+#Qxts&lt;-as.xts.data.table(QDT)
+#head(Qxts)
+#xts(QDT[, -1], order.by=as.POSIXct.Date(QDT$index))</code></pre>
+<pre class="r"><code>#MQDT&lt;-data.table(meanQdata)
+#as.xts.data.table(MQDT)
+#xts(MQDT[, -1], order.by=as.Date(meanQdata$Date))
+#head(MQDT)</code></pre>
 </div>
 <div id="results" class="section level1">
 <h1>Results</h1>
-<p>Show tables, plots, etc. and describe them.</p>
+<p>Plotting the discharge over time yields:</p>
+<pre class="r"><code>  x=meanQdata$Year
+  y=meanQdata$meanDischarge
+  m=plot(x,y,
+       type=&quot;p&quot;,
+       ylab=&quot;Discharge (cfs)&quot;,
+       xlab=&quot;Year&quot;,
+       main=&quot;Annual Mean Discharge of the Niagara River&quot;,
+       col=&quot;blue&quot;
+       
+  )</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-7-1.png" width="672" /> The discharge measurements have been averaged for each year and plotted over time.</p>
 <pre class="r"><code>summary(d)</code></pre>
-<pre><code>## Warning in format.POSIXlt(as.POSIXlt(x), ...): unknown timezone &#39;default/
-## America/New_York&#39;</code></pre>
-<pre><code>##      name             longitude         latitude         prov          
-##  Length:100         Min.   :-93.30   Min.   :32.86   Length:100        
-##  Class :character   1st Qu.:-82.73   1st Qu.:39.40   Class :character  
-##  Mode  :character   Median :-76.81   Median :40.78   Mode  :character  
-##                     Mean   :-78.43   Mean   :40.54                     
-##                     3rd Qu.:-74.73   3rd Qu.:42.47                     
-##                     Max.   :-69.20   Max.   :45.77                     
+<pre><code>##      name             longitude          latitude         prov          
+##  Length:100         Min.   :-123.18   Min.   :26.94   Length:100        
+##  Class :character   1st Qu.: -95.56   1st Qu.:36.13   Class :character  
+##  Mode  :character   Median : -83.47   Median :38.95   Mode  :character  
+##                     Mean   : -89.68   Mean   :38.48                     
+##                     3rd Qu.: -77.06   3rd Qu.:40.48                     
+##                     Max.   : -70.07   Max.   :48.77                     
 ##       date                key           
-##  Min.   :2017-10-18   Length:100        
-##  1st Qu.:2017-10-18   Class :character  
-##  Median :2017-10-18   Mode  :character  
-##  Mean   :2017-10-18                     
-##  3rd Qu.:2017-10-18                     
-##  Max.   :2017-10-18</code></pre>
+##  Min.   :2017-11-27   Length:100        
+##  1st Qu.:2017-11-27   Class :character  
+##  Median :2017-11-27   Mode  :character  
+##  Mean   :2017-11-27                     
+##  3rd Qu.:2017-11-27                     
+##  Max.   :2017-11-27</code></pre>
 </div>
 <div id="conclusions" class="section level1">
 <h1>Conclusions</h1>
-<p>What have you learned? Are there any broader implications?</p>
+<p>I haven’t been able to pursue the second and third questions in a way I can display in R yet.</p>
 </div>
 <div id="references" class="section level1">
 <h1>References</h1>
