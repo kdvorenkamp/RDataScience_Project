@@ -80,8 +80,9 @@ meanQdata=Qdata%>%
   group_by(Year,Month)%>%
   summarise(meanDischarge = mean(Discharge,na.rm=T),
             sdDischarge = sd(Discharge,na.rm=T))
-head(meanQdata)
+data.table(meanQdata)
 ```
+
 I want to treat the data with the R package hydroTSM, which helps analyze hydrological data with time series. To do this, I need to get my data into a format that is compatible with the xts package.
 
 ```{r}
@@ -89,13 +90,14 @@ Qdata<-data.table(Qdata)
 QDT<-as.data.table(Qdata)
 QDT<-select(QDT,Date,Discharge)
 Qxts<-as.xts.data.table(QDT)
-xts(Qdata[, -1], order.by=as.POSIXct.Date(Qdata$Date))
 ```
-
+The hydroTSM package contains a function to process daily data to monthly and annual. For my purposes, I want to see the monthly mean to make sure there is not too much discrepancy over the large time period in the measurements.
 ```{r}
 meanMon<-daily2monthly(Qxts,FUN=mean)
 head(meanMon)
-plot(meanMon)
+```
+Now that we have it in a monthly time series format, let's plot the data:
+```{r}
 mMon<-plot(meanMon,
      type="p",
      ylab="Discharge (cfs)",
@@ -104,24 +106,41 @@ mMon<-plot(meanMon,
      col="blue"
 )
 ```
-
+hydroTSM has some required maintenance code for use in calculations:
 ```{r}
 dates<-time(meanMon)
 nyears<-yip(from = start(meanMon),to=end(meanMon),out.type = "nmbr")
 ```
 
+Let's take a look at the summary information for the Niagara River discharge measurements.
 ```{r}
 smry(meanMon)
 ```
+From this, we can see that the lowest flow of record occurred in June 1868, with a flow of approximately 8 cfs and the highest flow occurred in May 1992 with approximately 294 cfs. The mean flow is 173 cfs.
 
+HydroTSM can show the data in different ways to explore the hydrography of the region. 
 ```{r}
-hydroplot(meanMon,var.type = "Flow",main = "at Niagara River",pfreq = "ma",from = "1868-06-01")
+hydroplot(meanMon,var.type = "Flow",main = "at Niagara River",pfreq = "dm",from = "1868-06-01")
 ```
 
+It displays it as the time series, where it is observed that the flow of the Niagara River has seen a dramatic change since measurements began 124 years ago. 1967 was the first time when the monthly discharge averaged less than 100 cfs. 
+```{r}
+summer<-Qdata%>%
+  filter(Month %in% c(5,6,7,8,9))
 
+m<-daily2monthly.zoo(Qxts, FUN=mean, na.rm=TRUE)
+
+M <- matrix(m, ncol=53, byrow = TRUE)
+colnames(M) <- month.abb
+rownames(M) <- unique(format(time(m), "%Y"))
+require(lattice)
+print(matrixplot(M,ColorRamp = "Days",main = "Annual Flow at Niagara River (cfs)"))
+```
+Plotting the monthly flow values for each year, useful for identifying high/low flow months.
 ```{r}
 
 ```
+
 # Results
 Plotting the discharge over time yields:
 ```{r}
