@@ -449,99 +449,110 @@ knitr::opts_chunk$set(cache=TRUE)  # cache the results for quick compiling</code
 <h1>Coding Section</h1>
 <p>The comma separated value (csv) file that the above hyperlink returns can be downloaded straigt to R using the following code:</p>
 <pre class="r"><code>Qdata&lt;-fread(&quot;http://www.lre.usace.army.mil/Portals/69/docs/GreatLakesInfo/docs/DischargeMeasurement/DischargeData/NiagaraRiverDischargeData.csv&quot;)
-#Not working:Qdata=select(Qdata,(&#39;Cross.Section.Name&#39;=&#39;Cross-Section Name&#39;),(&#39;Discharge&#39;=&#39;Discharge/tcfs&#39;), &#39;Year&#39;, &#39;Month&#39;,&#39;Day&#39;,(&#39;Time&#39;=&#39;Start Time&#39;))
-head(Qdata)</code></pre>
-<pre><code>##            River Cross-Section Name Year Month Day Instance Start Time
-## 1: Niagara River     American Falls 1971     6   2        1       8:00
-## 2: Niagara River     American Falls 1971     6   3        1       7:30
-## 3: Niagara River     American Falls 1971     6   3        2      10:05
-## 4: Niagara River     American Falls 1971     6   3        3      13:15
-## 5: Niagara River     American Falls 1971     6   3        4      14:55
-## 6: Niagara River     American Falls 1971     6   3        5      18:15
-##    End Time Discharge/tcfs                                Technology
-## 1:    10:15           12.6 Conventional - off American Rapids bridge
-## 2:     9:35           13.4 Conventional - off American Rapids bridge
-## 3:    12:00           13.7 Conventional - off American Rapids bridge
-## 4:    14:45           13.4 Conventional - off American Rapids bridge
-## 5:    16:05           12.7 Conventional - off American Rapids bridge
-## 6:    19:20           10.3 Conventional - off American Rapids bridge</code></pre>
-<pre class="r"><code>#Not working: Qdata$Date[is.na(Qdata$Date)]=as.Date( with(Qdata,paste(Year, Month , Day , sep = &quot;-&quot; ),&quot;12-31-9999&quot;, format = &quot;%Y-%m-%d&quot; ))</code></pre>
+Qdata=select(Qdata,&#39;Cross.Section.Name&#39;=&#39;Cross-Section Name&#39;,&#39;Discharge&#39;=&#39;Discharge/tcfs&#39;, &#39;Year&#39;, &#39;Month&#39;,&#39;Day&#39;,&#39;Time&#39;=&#39;Start Time&#39;)
+Qdata[Qdata$Year==1931&amp;Qdata$Month==9&amp;Qdata$Day==31,&quot;Day&quot;]=30</code></pre>
+<pre><code>## Warning in `[&lt;-.data.table`(`*tmp*`, Qdata$Year == 1931 &amp; Qdata$Month == :
+## Coerced &#39;double&#39; RHS to &#39;character&#39; to match the column&#39;s type; may have
+## truncated precision. Either change the target column to &#39;double&#39; first
+## (by creating a new &#39;double&#39; vector length 2004 (nrows of entire table) and
+## assign that; i.e. &#39;replace&#39; column), or coerce RHS to &#39;character&#39; (e.g. 1L,
+## NA_[real|integer]_, as.*, etc) to make your intent clear and for speed. Or,
+## set the column type correctly up front when you create the table and stick
+## to it, please.</code></pre>
+<pre class="r"><code>head(Qdata)</code></pre>
+<pre><code>##    Cross.Section.Name Discharge Year Month Day  Time
+## 1:     American Falls      12.6 1971     6   2  8:00
+## 2:     American Falls      13.4 1971     6   3  7:30
+## 3:     American Falls      13.7 1971     6   3 10:05
+## 4:     American Falls      13.4 1971     6   3 13:15
+## 5:     American Falls      12.7 1971     6   3 14:55
+## 6:     American Falls      10.3 1971     6   3 18:15</code></pre>
 <p>Let’s work with the data now. I am going to compile the separate columns for the date: Year, Month, and Day; into a single Date column:</p>
-<pre class="r"><code>#This stopped working:
-#Qdata$Date[is.na(Qdata$Date)]=as.Date( with(Qdata,paste(Year, Month , Day , sep = &quot;-&quot; ),&quot;12-31-9999&quot;, format = &quot;%Y-%m-%d&quot; ))
+<pre class="r"><code>Qdata$Date=as.Date( with(Qdata,paste(Year, Month , Day , sep = &quot;-&quot; ),&quot;12-31-9999&quot;, format = &quot;%Y-%m-%d&quot; ))
 head(Qdata)</code></pre>
-<pre><code>##            River Cross-Section Name Year Month Day Instance Start Time
-## 1: Niagara River     American Falls 1971     6   2        1       8:00
-## 2: Niagara River     American Falls 1971     6   3        1       7:30
-## 3: Niagara River     American Falls 1971     6   3        2      10:05
-## 4: Niagara River     American Falls 1971     6   3        3      13:15
-## 5: Niagara River     American Falls 1971     6   3        4      14:55
-## 6: Niagara River     American Falls 1971     6   3        5      18:15
-##    End Time Discharge/tcfs                                Technology
-## 1:    10:15           12.6 Conventional - off American Rapids bridge
-## 2:     9:35           13.4 Conventional - off American Rapids bridge
-## 3:    12:00           13.7 Conventional - off American Rapids bridge
-## 4:    14:45           13.4 Conventional - off American Rapids bridge
-## 5:    16:05           12.7 Conventional - off American Rapids bridge
-## 6:    19:20           10.3 Conventional - off American Rapids bridge</code></pre>
-<p>We’ll find the annual mean discharge and standard deviation for the Niagara River:</p>
+<pre><code>##    Cross.Section.Name Discharge Year Month Day  Time       Date
+## 1:     American Falls      12.6 1971     6   2  8:00 1971-06-02
+## 2:     American Falls      13.4 1971     6   3  7:30 1971-06-03
+## 3:     American Falls      13.7 1971     6   3 10:05 1971-06-03
+## 4:     American Falls      13.4 1971     6   3 13:15 1971-06-03
+## 5:     American Falls      12.7 1971     6   3 14:55 1971-06-03
+## 6:     American Falls      10.3 1971     6   3 18:15 1971-06-03</code></pre>
+<p>We’ll find the monthly mean discharge and standard deviation for the Niagara River:</p>
 <pre class="r"><code>meanQdata=Qdata%&gt;%
-  group_by(Year)%&gt;%
+  group_by(Year,Month)%&gt;%
   summarise(meanDischarge = mean(Discharge,na.rm=T),
-    sdDischarge = sd(Discharge,na.rm=T))</code></pre>
+            sdDischarge = sd(Discharge,na.rm=T))
+data.table(meanQdata)</code></pre>
+<pre><code>##      Year Month meanDischarge sdDischarge
+##   1: 1868     6     293.55455   25.905882
+##   2: 1868     7     286.03000   19.715772
+##   3: 1868     8     248.31000   12.142743
+##   4: 1868     9     239.69286   27.894071
+##   5: 1897    10     181.85000   12.328357
+##  ---                                     
+## 102: 1988     5     218.13289    6.353086
+## 103: 1989     4      85.93333   25.768197
+## 104: 1989     5     117.41714  106.290477
+## 105: 1990     5      11.44000    1.406900
+## 106: 1992     5     210.01695   47.195650</code></pre>
 <p>I want to treat the data with the R package hydroTSM, which helps analyze hydrological data with time series. To do this, I need to get my data into a format that is compatible with the xts package.</p>
-<p>BUT, this code isn’t working yet, so I can’t include it here.</p>
-<pre class="r"><code>#xts1&lt;-xts(x=1:10,order.by = Sys.Date()-1:10)
+<pre class="r"><code>Qdata&lt;-data.table(Qdata)
+QDT&lt;-as.data.table(Qdata)
+head(QDT)</code></pre>
+<pre><code>##    Cross.Section.Name Discharge Year Month Day  Time       Date
+## 1:     American Falls      12.6 1971     6   2  8:00 1971-06-02
+## 2:     American Falls      13.4 1971     6   3  7:30 1971-06-03
+## 3:     American Falls      13.7 1971     6   3 10:05 1971-06-03
+## 4:     American Falls      13.4 1971     6   3 13:15 1971-06-03
+## 5:     American Falls      12.7 1971     6   3 14:55 1971-06-03
+## 6:     American Falls      10.3 1971     6   3 18:15 1971-06-03</code></pre>
+<pre class="r"><code>QDT&lt;-select(QDT,Date,Discharge)
+Qxts&lt;-as.xts.data.table(QDT)</code></pre>
+<p>The hydroTSM package contains a function to process daily data to monthly and annual. For my purposes, I want to see the monthly mean to make sure there is not too much discrepancy over the large time period in the measurements.</p>
+<pre class="r"><code>meanMon&lt;-daily2monthly(Qxts,FUN=mean)
+head(meanMon)</code></pre>
+<pre><code>## 1868-06-01 1868-07-01 1868-08-01 1868-09-01 1897-10-01 1897-11-01 
+##   293.5545   286.0300   248.3100   239.6929   181.8500   184.4000</code></pre>
+<p>Now that we have it in a monthly time series format, let’s plot the data:</p>
+<pre class="r"><code>mMon&lt;-plot(meanMon,
+     type=&quot;p&quot;,
+     ylab=&quot;Discharge (cfs)&quot;,
+     xlab=&quot;Year&quot;,
+     main=&quot;Monthly Mean Discharge of the Niagara River&quot;,
+     col=&quot;blue&quot;
+)</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-7-1.png" width="672" /> hydroTSM has some required maintenance code for use in calculations:</p>
+<pre class="r"><code>dates&lt;-time(meanMon)
+nyears&lt;-yip(from = start(meanMon),to=end(meanMon),out.type = &quot;nmbr&quot;)</code></pre>
+<p>Let’s take a look at the summary information for the Niagara River discharge measurements.</p>
+<pre class="r"><code>smry(meanMon)</code></pre>
+<pre><code>##               Index  meanMon
+## Min.     1868-06-01   7.9750
+## 1st Qu.  1908-08-16 120.3000
+## Median   1957-11-16 188.7000
+## Mean     1944-04-20 173.3000
+## 3rd Qu.  1974-03-01 214.5000
+## Max.     1992-05-01 293.6000
+## IQR            &lt;NA&gt;  94.1745
+## sd             &lt;NA&gt;  65.5914
+## cv             &lt;NA&gt;   0.3785
+## Skewness       &lt;NA&gt;  -0.8924
+## Kurtosis       &lt;NA&gt;   0.1179
+## NA&#39;s           &lt;NA&gt;   0.0000
+## n              &lt;NA&gt; 106.0000</code></pre>
+<p>From this, we can see that the lowest flow of record occurred in June 1868, with a flow of approximately 8 cfs and the highest flow occurred in May 1992 with approximately 294 cfs. The mean flow is 173 cfs.</p>
+<p>HydroTSM can show the data in different ways to explore the hydrography of the region.</p>
+<pre class="r"><code>hydroplot(meanMon,var.type = &quot;Flow&quot;,main = &quot;at Niagara River&quot;,pfreq = &quot;dm&quot;,from = &quot;1868-06-01&quot;)</code></pre>
+<pre><code>## [Warning: &#39;x&#39; is a monthly object, so &#39;pfreq&#39; has been changed to &#39;ma&#39;]</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>It displays it as the time series, where it is observed that the flow of the Niagara River has seen a dramatic change since measurements began 124 years ago. 1967 was the first time when the monthly discharge averaged less than 100 cfs.</p>
+<pre class="r"><code>M &lt;- matrix(m, ncol=53, byrow = TRUE)
 
-#setcolorder(Qdata,c(&quot;Date&quot;, &quot;Year&quot;, &quot;Month&quot;, &quot;Day&quot;, &quot;Cross.Section.Name&quot;, &quot;Discharge&quot;))
 
-#QDT&lt;-as.data.table(Qdata)%&gt;%
-# select(c(&quot;Date&quot;=&quot;index&quot;,&quot;Discharge&quot;))
-#head(QDT)
-#Qxts&lt;-as.xts.data.table(QDT)
-#head(Qxts)
-#xts(QDT[, -1], order.by=as.POSIXct.Date(QDT$index))</code></pre>
-<pre class="r"><code>#MQDT&lt;-data.table(meanQdata)
-#as.xts.data.table(MQDT)
-#xts(MQDT[, -1], order.by=as.Date(meanQdata$Date))
-#head(MQDT)</code></pre>
-</div>
-<div id="results" class="section level1">
-<h1>Results</h1>
-<p>Plotting the discharge over time yields:</p>
-<pre class="r"><code>  x=meanQdata$Year
-  y=meanQdata$meanDischarge
-  m=plot(x,y,
-       type=&quot;p&quot;,
-       ylab=&quot;Discharge (cfs)&quot;,
-       xlab=&quot;Year&quot;,
-       main=&quot;Annual Mean Discharge of the Niagara River&quot;,
-       col=&quot;blue&quot;
-       
-  )</code></pre>
-<p><img src="index_files/figure-html/unnamed-chunk-7-1.png" width="672" /> The discharge measurements have been averaged for each year and plotted over time.</p>
-<pre class="r"><code>summary(d)</code></pre>
-<pre><code>##      name             longitude          latitude         prov          
-##  Length:100         Min.   :-123.18   Min.   :26.94   Length:100        
-##  Class :character   1st Qu.: -95.56   1st Qu.:36.13   Class :character  
-##  Mode  :character   Median : -83.47   Median :38.95   Mode  :character  
-##                     Mean   : -89.68   Mean   :38.48                     
-##                     3rd Qu.: -77.06   3rd Qu.:40.48                     
-##                     Max.   : -70.07   Max.   :48.77                     
-##       date                key           
-##  Min.   :2017-11-27   Length:100        
-##  1st Qu.:2017-11-27   Class :character  
-##  Median :2017-11-27   Mode  :character  
-##  Mean   :2017-11-27                     
-##  3rd Qu.:2017-11-27                     
-##  Max.   :2017-11-27</code></pre>
-</div>
-<div id="conclusions" class="section level1">
-<h1>Conclusions</h1>
-<p>I haven’t been able to pursue the second and third questions in a way I can display in R yet.</p>
-</div>
-<div id="references" class="section level1">
-<h1>References</h1>
+require(lattice)</code></pre>
+<pre><code>## Loading required package: lattice</code></pre>
+<pre class="r"><code>print(matrixplot(M,ColorRamp = &quot;Days&quot;,main = &quot;Annual Flow at Niagara River (cfs)&quot;))</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-11-1.png" width="672" /> Plotting the monthly flow values for each year, useful for identifying high/low flow months.</p>
 </div>
 
 <!-- give the footer some space -->
