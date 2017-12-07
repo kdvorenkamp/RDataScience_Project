@@ -498,15 +498,7 @@ data.table(meanQdata)</code></pre>
 <p>I want to treat the data with the R package hydroTSM, which helps analyze hydrological data with time series. To do this, I need to get my data into a format that is compatible with the xts package.</p>
 <pre class="r"><code>Qdata&lt;-data.table(Qdata)
 QDT&lt;-as.data.table(Qdata)
-head(QDT)</code></pre>
-<pre><code>##    Cross.Section.Name Discharge Year Month Day  Time       Date
-## 1:     American Falls      12.6 1971     6   2  8:00 1971-06-02
-## 2:     American Falls      13.4 1971     6   3  7:30 1971-06-03
-## 3:     American Falls      13.7 1971     6   3 10:05 1971-06-03
-## 4:     American Falls      13.4 1971     6   3 13:15 1971-06-03
-## 5:     American Falls      12.7 1971     6   3 14:55 1971-06-03
-## 6:     American Falls      10.3 1971     6   3 18:15 1971-06-03</code></pre>
-<pre class="r"><code>QDT&lt;-select(QDT,Date,Discharge)
+QDT&lt;-select(QDT,Date,Discharge)
 Qxts&lt;-as.xts.data.table(QDT)</code></pre>
 <p>The hydroTSM package contains a function to process daily data to monthly and annual. For my purposes, I want to see the monthly mean to make sure there is not too much discrepancy over the large time period in the measurements.</p>
 <pre class="r"><code>meanMon&lt;-daily2monthly(Qxts,FUN=mean)
@@ -521,7 +513,8 @@ head(meanMon)</code></pre>
      main=&quot;Monthly Mean Discharge of the Niagara River&quot;,
      col=&quot;blue&quot;
 )</code></pre>
-<p><img src="index_files/figure-html/unnamed-chunk-7-1.png" width="672" /> hydroTSM has some required maintenance code for use in calculations:</p>
+<p><img src="index_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p>hydroTSM has some required maintenance code for use in calculations:</p>
 <pre class="r"><code>dates&lt;-time(meanMon)
 nyears&lt;-yip(from = start(meanMon),to=end(meanMon),out.type = &quot;nmbr&quot;)</code></pre>
 <p>Let’s take a look at the summary information for the Niagara River discharge measurements.</p>
@@ -552,7 +545,13 @@ nyears&lt;-yip(from = start(meanMon),to=end(meanMon),out.type = &quot;nmbr&quot;
 require(lattice)</code></pre>
 <pre><code>## Loading required package: lattice</code></pre>
 <pre class="r"><code>print(matrixplot(M,ColorRamp = &quot;Days&quot;,main = &quot;Annual Flow at Niagara River (cfs)&quot;))</code></pre>
-<p><img src="index_files/figure-html/unnamed-chunk-11-1.png" width="672" /> Plotting the monthly flow values for each year, useful for identifying high/low flow months.</p>
+<p><img src="index_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p>Plotting the monthly flow values for each year, useful for identifying high/low flow months.In this way, it is easy to see that the most recent portion of the recorded data has the only instances of very low flow conditions.</p>
+<p>Thanks for listening, here’s a dancing pig.</p>
+<div class="figure">
+<img src="https://i.imgur.com/qTzYoAw.gif" />
+
+</div>
 </div>
 
 <!-- give the footer some space -->
