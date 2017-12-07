@@ -126,11 +126,6 @@ hydroplot(meanMon,var.type = "Flow",main = "at Niagara River",pfreq = "dm",from 
 
 It displays it as the time series, where it is observed that the flow of the Niagara River has seen a dramatic change since measurements began 124 years ago. 1967 was the first time when the monthly discharge averaged less than 100 cfs. 
 ```{r}
-summer<-Qdata%>%
-  filter(Month %in% c(5,6,7,8,9))
-
-
-
 M <- matrix(m, ncol=53, byrow = TRUE)
 
 
@@ -153,7 +148,7 @@ The discharge measurements have been averaged for each month and plotted over ti
 
 
 ```{r}
-summary(d)
+summary(meanMon)
 ```
 
 # Conclusions
