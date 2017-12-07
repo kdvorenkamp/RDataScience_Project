@@ -64,7 +64,7 @@ The description of their Niagara River sampling locations are shown in the table
 The comma separated value (csv) file that the above hyperlink returns can be downloaded straigt to R using the following code:
 ```{r}
 Qdata<-fread("http://www.lre.usace.army.mil/Portals/69/docs/GreatLakesInfo/docs/DischargeMeasurement/DischargeData/NiagaraRiverDischargeData.csv")
-Qdata=select(Qdata,'Cross.Section.Name'='Cross-Section Name','Discharge'='Discharge/tcfs', 'Year', 'Month','Day','Time'='Start Time')
+#Qdata=select(Qdata,'Cross.Section.Name'='Cross-Section Name','Discharge'='Discharge/tcfs', 'Year', 'Month','Day','Time'='Start Time')
 Qdata[Qdata$Year==1931&Qdata$Month==9&Qdata$Day==31,"Day"]=30
 head(Qdata)
 
@@ -76,11 +76,11 @@ head(Qdata)
 ```
 We'll find the monthly mean discharge and standard deviation for the Niagara River:
 ```{r}
-meanQdata=Qdata%>%
-  group_by(Year,Month)%>%
-  summarise(meanDischarge = mean(Discharge,na.rm=T),
-            sdDischarge = sd(Discharge,na.rm=T))
-data.table(meanQdata)
+#meanQdata=Qdata%>%
+  #group_by(Year,Month)%>%
+ # summarise(meanDischarge = mean(Discharge,na.rm=T),
+            #sdDischarge = sd(Discharge,na.rm=T))
+#data.table(meanQdata)
 ```
 
 I want to treat the data with the R package hydroTSM, which helps analyze hydrological data with time series. To do this, I need to get my data into a format that is compatible with the xts package.
@@ -128,13 +128,13 @@ It displays it as the time series, where it is observed that the flow of the Nia
 summer<-Qdata%>%
   filter(Month %in% c(5,6,7,8,9))
 
-m<-daily2monthly.zoo(Qxts, FUN=mean, na.rm=TRUE)
+
 
 M <- matrix(m, ncol=53, byrow = TRUE)
 colnames(M) <- month.abb
 rownames(M) <- unique(format(time(m), "%Y"))
 require(lattice)
-print(matrixplot(M,ColorRamp = "Days",main = "Annual Flow at Niagara River (cfs)"))
+#print(matrixplot(M,ColorRamp = "Days",main = "Annual Flow at Niagara River (cfs)"))
 ```
 Plotting the monthly flow values for each year, useful for identifying high/low flow months.
 ```{r}
