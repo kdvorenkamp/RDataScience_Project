@@ -74,6 +74,7 @@ Let's work with the data now. I am going to compile the separate columns for the
 Qdata$Date=as.Date( with(Qdata,paste(Year, Month , Day , sep = "-" ),"12-31-9999", format = "%Y-%m-%d" ))
 head(Qdata)
 ```
+
 We'll find the monthly mean discharge and standard deviation for the Niagara River:
 ```{r}
 meanQdata=Qdata%>%
@@ -88,15 +89,16 @@ I want to treat the data with the R package hydroTSM, which helps analyze hydrol
 ```{r}
 Qdata<-data.table(Qdata)
 QDT<-as.data.table(Qdata)
-head(QDT)
 QDT<-select(QDT,Date,Discharge)
 Qxts<-as.xts.data.table(QDT)
 ```
+
 The hydroTSM package contains a function to process daily data to monthly and annual. For my purposes, I want to see the monthly mean to make sure there is not too much discrepancy over the large time period in the measurements.
 ```{r}
 meanMon<-daily2monthly(Qxts,FUN=mean)
 head(meanMon)
 ```
+
 Now that we have it in a monthly time series format, let's plot the data:
 ```{r}
 mMon<-plot(meanMon,
@@ -107,6 +109,7 @@ mMon<-plot(meanMon,
      col="blue"
 )
 ```
+
 hydroTSM has some required maintenance code for use in calculations:
 ```{r}
 dates<-time(meanMon)
@@ -132,7 +135,8 @@ M <- matrix(m, ncol=53, byrow = TRUE)
 require(lattice)
 print(matrixplot(M,ColorRamp = "Days",main = "Annual Flow at Niagara River (cfs)"))
 ```
-Plotting the monthly flow values for each year, useful for identifying high/low flow months.
+
+Plotting the monthly flow values for each year, useful for identifying high/low flow months.In this way, it is easy to see that the most recent portion of the recorded data has the only instances of very low flow conditions.
 ```{r}
 
 ```
