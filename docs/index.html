@@ -12,7 +12,7 @@
 <meta name="author" content="Kendra Vorenkamp" />
 
 
-<title>The Niagara River Watershed</title>
+<title>The Hydrology of the Niagara River</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -296,8 +296,8 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">The Niagara River Watershed</h1>
-<h3 class="subtitle"><em>The relationship between precipitation and river discharge</em></h3>
+<h1 class="title toc-ignore">The Hydrology of the Niagara River</h1>
+<h3 class="subtitle"><em>The change in river discharge over time</em></h3>
 <h4 class="author"><em>Kendra Vorenkamp</em></h4>
 
 </div>
@@ -306,13 +306,7 @@ div.tocify {
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
 <p>The Niagara River watershed is not only the land draining to the river, but also includes the drainage area of the other Great Lakes “upstream”: Lake Erie, Lake Huron, and Lake Michigan/Lake Superior. In order to investigate a relationship between precipitation within the watershed and discharge through the Niagara River, several problems arise in quantifying the data. First, the Lake Erie watershed data is international, shared with Canada. As of now, there is not a common dataset for the Great Lakes, making collaboration for watershed management difficult. Second, there may be a significant lag in precipitation events and discharge reaction with a watershed system this large. Third, snow melt and ice cover of the lakes will affect flow throughout the lakes, and the ability to measure discharge.</p>
-<p>The questions I will be pursuing through this project are</p>
-<ol style="list-style-type: decimal">
-<li><p>Has the flow rate of the Niagara River changed over time?</p></li>
-<li><p>Is there a relationship between precipitation and discharge in the Niagara River?</p></li>
-<li><p>If so, what level of detail is needed to ascertain this relationship?</p></li>
-</ol>
-<p>My hypotheses to these questions are that yes, the flow rate has changed with time as land and water use has changed the watershed, there is a relationship between discharge and precipitation, and that it will be sufficient to incorporate flow from the St. Clair River (from Lake Huron), the subwatersheds surrounding Lake Erie, and the Niagara watershed to see a relationship to the discharge measured at the downstream end of the river.</p>
+<p>Has the flow rate of the Niagara River changed over time? My hypothesis is yes, the flow rate has changed with time as land and water use has changed the watershed.</p>
 </div>
 <div id="materials-and-methods" class="section level1">
 <h1>Materials and methods</h1>
@@ -547,6 +541,10 @@ require(lattice)</code></pre>
 <pre class="r"><code>print(matrixplot(M,ColorRamp = &quot;Days&quot;,main = &quot;Annual Flow at Niagara River (cfs)&quot;))</code></pre>
 <p><img src="index_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 <p>Plotting the monthly flow values for each year, useful for identifying high/low flow months.In this way, it is easy to see that the most recent portion of the recorded data has the only instances of very low flow conditions.</p>
+</div>
+<div id="conclusions" class="section level1">
+<h1>Conclusions</h1>
+<p>Based on the scatterplot and the matrix figures, it can ben seen that the variability of discharge in the Niagara River has increased significantly over time, more specifically from the 1960s to present day. This may correspond to changes in land use, but I suspect that the diversion of water for hydropower plays a larger role in the range of discharge levels. Future work could include comparing this data spatially, to review for changes due to sampling position; evaluate this hydrology to precipitation data to investigate the relationship between the watershed’s precipitation and discharge response; and to review any relationship temporally to ascertain changes over time.</p>
 <p>Thanks for listening, here’s a dancing pig.</p>
 <div class="figure">
 <img src="https://i.imgur.com/qTzYoAw.gif" />

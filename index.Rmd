@@ -1,21 +1,13 @@
 ---
-title: "The Niagara River Watershed"
+title: "The Hydrology of the Niagara River"
 author: Kendra Vorenkamp
-subtitle: The relationship between precipitation and river discharge
+subtitle: The change in river discharge over time
 ---
 
 # Introduction
 The Niagara River watershed is not only the land draining to the river, but also includes the drainage area of the other Great Lakes “upstream”: Lake Erie, Lake Huron, and Lake Michigan/Lake Superior. In order to investigate a relationship between precipitation within the watershed and discharge through the Niagara River, several problems arise in quantifying the data. First, the Lake Erie watershed data is international, shared with Canada. As of now, there is not a common dataset for the Great Lakes, making collaboration for watershed management difficult. Second, there may be a significant lag in precipitation events and discharge reaction with a watershed system this large. Third, snow melt and ice cover of the lakes will affect flow throughout the lakes, and the ability to measure discharge.  
 
-The questions I will be pursuing through this project are
-
-1. Has the flow rate of the Niagara River changed over time?
-
-2. Is there a relationship between precipitation and discharge in the Niagara River?
-
-3. If so, what level of detail is needed to ascertain this relationship? 
-
-My hypotheses to these questions are that yes, the flow rate has changed with time as land and water use has changed the watershed, there is a relationship between discharge and precipitation, and that it will be sufficient to incorporate flow from the St. Clair River (from Lake Huron), the subwatersheds surrounding Lake Erie, and the Niagara watershed to see a relationship to the discharge measured at the downstream end of the river.
+Has the flow rate of the Niagara River changed over time? My hypothesis is yes, the flow rate has changed with time as land and water use has changed the watershed.
 
 
 # Materials and methods
@@ -140,6 +132,10 @@ Plotting the monthly flow values for each year, useful for identifying high/low 
 ```{r}
 
 ```
+# Conclusions
+
+Based on the scatterplot and the matrix figures, it can ben seen that the variability of discharge in the Niagara River has increased significantly over time, more specifically from the 1960s to present day. This may correspond to changes in land use, but I suspect that the diversion of water for hydropower plays a larger role in the range of discharge levels. Future work could include comparing this data spatially, to review for changes due to sampling position; evaluate this hydrology to precipitation data to investigate the relationship between the watershed's precipitation and discharge response; and to review any relationship temporally to ascertain changes over time.
+
 Thanks for listening, here's a dancing pig.
 
 ![](https://i.imgur.com/qTzYoAw.gif)
