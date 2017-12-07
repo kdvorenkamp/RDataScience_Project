@@ -137,23 +137,4 @@ Plotting the monthly flow values for each year, useful for identifying high/low 
 
 ```
 
-# Results
-Plotting the discharge over time yields:
-```{r}
-
-       
-  
-```
-The discharge measurements have been averaged for each month and plotted over time. 
-
-
-```{r}
-summary(meanMon)
-```
-
-# Conclusions
-
-I haven't been able to pursue the second and third questions in a way I can display in R yet.
-
-# References
 
